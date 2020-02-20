@@ -16,27 +16,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 
-public class RegisterServlet extends HttpServlet {
-
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String email = req.getParameter("email");
-        String url = "http://localhost:8080/painter/email";
-        URLConnection connection = new URL(url + "?email=" + email).openConnection();
-        BufferedReader bufferedReader = null;
-        try {
-            bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String decodedString;
-            while ((decodedString = bufferedReader.readLine()) != null) {
-                System.out.println(decodedString);
-            }
-        } catch (IOException e) {
-            e.getMessage();
-        } finally {
-            if (bufferedReader != null) {
-                bufferedReader.close();
-            }
-        }
-    }
+public class CardConnectRequestServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
@@ -60,28 +40,17 @@ public class RegisterServlet extends HttpServlet {
         connection.setRequestProperty("Accept-Charset", "UTF-8");
         connection.setRequestProperty("Content-Type", "application/json");
         connection.setDoOutput(true);
-        OutputStream outputStream = null;
-        BufferedReader bufferedReader = null;
-        try {
-            outputStream = connection.getOutputStream();
-            outputStream.write(jsonObject.getBytes());
-            bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        OutputStream outputStream = connection.getOutputStream();
+        outputStream.write(jsonObject.getBytes());
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
             StringBuilder decoded = new StringBuilder();
             String decodedString;
             while ((decodedString = bufferedReader.readLine()) != null) {
                 decoded.append(decodedString);
             }
-            /*req.setAttribute("decoded", decoded);
+             /*req.setAttribute("decoded", decoded);
             RequestDispatcher dispatcher = req.getRequestDispatcher("");
             dispatcher.forward(req, resp);*/
-        } finally {
-            if (bufferedReader != null) {
-                bufferedReader.close();
-            }
-            if (outputStream != null) {
-                outputStream.close();
-            }
         }
     }
-
 }
